@@ -1,7 +1,6 @@
-import { Box } from '@mui/material'
+import { Box, Skeleton } from '@mui/material'
 import DataTable from 'react-data-table-component'
 import { defaultPageCount } from 'utils/constants/common'
-import Skeleton, { Table } from '@nejcm/react-skeleton-emotion'
 
 export default ({
   data, count, columns, setPageNumber, setRowsPerPage, setSortBy, loading,
@@ -28,9 +27,9 @@ export default ({
   )
 
   const skeleton = (
-    <Skeleton>
-      <Table rows={5} />
-    </Skeleton>
+    <Box data-testid='table-skeleton'>
+      {[0, 1, 2, 3, 4].map((row) => <Skeleton key={row} height={48} />)}
+    </Box>
   )
 
   const load = loading ? skeleton : table

@@ -15,19 +15,19 @@ export const fetchProduct = (id) => (
 export const fetchProductStyles = () => (
   instance.get('/products/styles')
     .then(response => response.data)
-    .catch(() => ({}))
+    .catch(() => [])
 )
 
 export const fetchProductBrands = () => (
   instance.get('/products/brands')
     .then(response => response.data)
-    .catch(() => ({}))
+    .catch(() => [])
 )
 
 export const fetchProductTypes = () => (
   instance.get('/products/types')
     .then(response => response.data)
-    .catch(() => ({}))
+    .catch(() => [])
 )
 
 export const removeProducts = (id) => instance.delete(`/products/${id}`).then(response => response.data).catch(() => ({}))
