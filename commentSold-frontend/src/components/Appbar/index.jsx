@@ -1,36 +1,48 @@
-import {
-  AppBar, Box, Button, Toolbar,
-} from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { Button } from '@mui/material'
+import LogoutOutlined from '@mui/icons-material/LogoutOutlined'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 import { menu } from 'utils/constants/common'
-import { removeToken } from 'utils/helpers'
+import { getSignedInName, removeToken } from 'utils/helpers'
 
 import './styles.scss'
 
-const MatAppBar = () => {
+const AppBar = () => {
   const navigate = useNavigate()
+  const name = getSignedInName()
+
   const handleLogout = () => {
     removeToken()
     navigate('/login')
   }
 
   return (
-    <Box data-testid='appbar'>
-      <AppBar className='appbar-box' position='static'>
-        <Toolbar>
+    <header className='appbar' data-testid='appbar'>
+      <div className='appbar-inner'>
+        <NavLink to='/products' className='brand'>
+          Stockroom
+        </NavLink>
+        <nav aria-label='Main' className='appbar-nav'>
           {menu.map((item) => (
-            <Button key={item.name} className='app-menu' onClick={() => navigate(item.path)} color='inherit'>
+            <NavLink key={item.path} to={item.path} className='appbar-link'>
               {item.name}
-            </Button>
+            </NavLink>
           ))}
-          <Button className='app-menu' onClick={() => handleLogout()} color='inherit'>
-            Logout
+        </nav>
+        <div className='appbar-user'>
+          {name && <span className='appbar-name'>{name}</span>}
+          <Button
+            onClick={handleLogout}
+            color='inherit'
+            size='small'
+            startIcon={<LogoutOutlined aria-hidden />}
+          >
+            Log out
           </Button>
-        </Toolbar>
-      </AppBar>
-    </Box>
+        </div>
+      </div>
+    </header>
   )
 }
 
-export default MatAppBar
+export default AppBar

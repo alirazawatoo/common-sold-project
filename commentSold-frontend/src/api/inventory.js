@@ -1,9 +1,8 @@
 import instance from 'api'
-import { inventorySearchUrl } from 'utils/helpers'
+import { listQuery } from 'utils/helpers'
 
-const fetchInventories = (params) => instance
-  .get(inventorySearchUrl(params))
+const fetchInventories = (query) => instance
+  .get(`inventories?${listQuery(query)}`)
   .then((response) => response.data)
-  .catch(() => ({}))
 
 export default fetchInventories

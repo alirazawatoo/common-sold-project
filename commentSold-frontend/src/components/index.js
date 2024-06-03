@@ -1,9 +1,9 @@
-import React from 'react'
-
-export const AppBar = React.lazy(() => import('components/Appbar'))
-export const DeleteModal = React.lazy(() => import('components/DeleteModal'))
-export const Form = React.lazy(() => import('components/Form'))
-export const LoadingModal = React.lazy(() => import('components/LoadingModal'))
-export const Select = React.lazy(() => import('components/Select'))
-export const SelectFilter = React.lazy(() => import('components/SelectFilter'))
-export const Table = React.lazy(() => import('components/Table'))
+export { default as AppBar } from './Appbar'
+export { default as DeleteModal } from './DeleteModal'
+export { default as Form } from './Form'
+export { default as LoadingModal } from './LoadingModal'
+export { default as PageHeader } from './PageHeader'
+export { default as Select } from './Select'
+export { default as SelectFilter } from './SelectFilter'
+export { default as StatTile } from './StatTile'
+export { default as Table } from './Table'

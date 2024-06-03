@@ -1,18 +1,28 @@
+import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { BrowserRouter } from 'react-router-dom'
+import {
+  MemoryRouter, Route, Routes, useLocation,
+} from 'react-router-dom'
 
-export const TestApp = ({ children }) => (
-  <BrowserRouter>
-    {children}
-  </BrowserRouter>
-)
+import theme from '../theme'
 
-export const renderWithRouter = (ui, { route = '/' } = {}) => {
-  window.history.pushState({}, 'Test page', route)
+const CurrentPath = () => <p data-testid='location'>{useLocation().pathname}</p>
 
-  return {
-    user: userEvent.setup(),
-    ...render(ui, { wrapper: TestApp }),
-  }
-}
+// Renders `ui` at `route`; any navigation away lands on a probe showing the new path.
+export const renderAt = (ui, { route = '/', path = '/' } = {}) => ({
+  user: userEvent.setup(),
+  ...render(
+    <ThemeProvider theme={theme}>
+      <MemoryRouter initialEntries={[route]}>
+        <Routes>
+          <Route path={path} element={ui} />
+          <Route path='*' element={<CurrentPath />} />
+        </Routes>
+      </MemoryRouter>
+    </ThemeProvider>,
+  ),
+})
+
+// A JWT-shaped token whose payload carries a display name (signature not checked client-side).
+export const fakeToken = (name = 'Morgan Avery') => `x.${btoa(JSON.stringify({ name }))}.y`

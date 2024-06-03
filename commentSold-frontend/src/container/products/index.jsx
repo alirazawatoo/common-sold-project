@@ -1,149 +1,108 @@
-import {
-  Box, Button, Card, CardContent, Paper, Typography,
-} from '@mui/material'
-import { DeleteOutlineOutlined, EditOutlined } from '@mui/icons-material'
+import { Button, IconButton, Tooltip } from '@mui/material'
+import AddOutlined from '@mui/icons-material/AddOutlined'
+import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined'
+import EditOutlined from '@mui/icons-material/EditOutlined'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
-import { defaultPageCount } from 'utils/constants/common'
-import { fetchAllProducts, removeProducts } from 'api/products'
-import { isEmpty } from 'lodash'
-import { productColumnsKeys } from 'utils/constants/product'
-import {
-  AppBar, DeleteModal, LoadingModal, Table,
-} from 'components'
-import { formatNumbers, getToken } from 'utils/helpers'
+import { apiErrorMessage } from 'api'
+import { deleteProduct, fetchProducts } from 'api/products'
+import { DeleteModal, PageHeader, Table } from 'components'
+import { formatCents, formatNumber, sortFromField } from 'utils/helpers'
+import { useRemoteData, useTablePaging } from 'utils/hooks'
 
 import './styles.scss'
 
 const Products = () => {
-  const [products, setProducts] = useState([])
-  const [productsCount, setProductsCount] = useState(0)
-  const [confirmModal, setConfirmModal] = useState(false)
-  const [currentProductId, setcurrentProductId] = useState(false)
-  const [pageNumber, setPageNumber] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(defaultPageCount)
-  const [loading, setloading] = useState(false)
-  const [sortBy, setSortBy] = useState({
-    sortColumn: 'Name',
-    sortOrder: 'asc',
-  })
   const navigate = useNavigate()
+  const {
+    paging, onPageChange, onRowsPerPageChange, onSort,
+  } = useTablePaging(sortFromField('products.product_name', 'asc'))
+  const { page, limit, sort } = paging
+  const {
+    data, loading, error, reload,
+  } = useRemoteData(fetchProducts, { page, limit, sort })
+  const [pendingDelete, setPendingDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
-  const handleProducts = async () => {
-    setloading(true)
-    const tempSortBy = { ...sortBy }
-    tempSortBy.name = productColumnsKeys[tempSortBy.sortColumn]
-    const { count, rows } = await fetchAllProducts(rowsPerPage, pageNumber, tempSortBy)
-
-    if (count !== undefined) {
-      setProducts(rows)
-      setProductsCount(count)
-    } else {
-      const token = getToken()
-      if (!token) {
-        navigate('/login')
-      }
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      await deleteProduct(pendingDelete.id)
+      toast.success(`${pendingDelete.product_name} deleted`)
+      reload()
+    } catch (err) {
+      toast.error(apiErrorMessage(err))
     }
-    setloading(false)
+    setDeleting(false)
+    setPendingDelete(null)
   }
 
-  useEffect(() => {
-    handleProducts()
-  }, [rowsPerPage, pageNumber, sortBy])
-
-  const handleRemoveProduct = async () => {
-    setloading(true)
-    const data = await removeProducts(currentProductId)
-    if (!isEmpty(data)) {
-      await handleProducts()
-      toast.success('Product removed')
-    } else {
-      toast.error('Error! product not removed')
-    }
-    setloading(false)
-    setConfirmModal(false)
-  }
-
-  const handleAction = (type, id) => {
-    if (type === 'update') navigate(`/product/update/${id}`)
-    else {
-      setcurrentProductId(id)
-      setConfirmModal(true)
-    }
-  }
-
-  const productsColumns = [
+  const columns = [
     {
-      name: 'Name',
-      selector: (row) => row.product_name,
-      sortable: true,
-      wrap: true,
+      name: 'Name', selector: (row) => row.product_name, sortable: true, sortField: 'products.product_name', grow: 2, wrap: true,
     },
     {
-      name: 'Style',
-      selector: (row) => row.style,
-      sortable: true,
-      wrap: true,
+      name: 'Style', selector: (row) => row.style, sortable: true, sortField: 'products.style', wrap: true,
     },
     {
-      name: 'Brand',
-      selector: (row) => row.brand,
-      sortable: true,
-      wrap: true,
+      name: 'Brand', selector: (row) => row.brand, sortable: true, sortField: 'products.brand', wrap: true,
     },
+    { name: 'Shipping', selector: (row) => formatCents(row.shipping_price), right: true },
     {
-      name: 'Action',
-      selector: (row) => (
-        <>
-          <DeleteOutlineOutlined
-            className='delete-icon'
-            onClick={() => handleAction('remove', row.id)}
-          />
-          <EditOutlined className='edit-icon' onClick={() => handleAction('update', row.id)} />
-        </>
+      name: 'Actions',
+      button: true,
+      width: '112px',
+      cell: (row) => (
+        <div className='row-actions'>
+          <Tooltip title='Edit'>
+            <IconButton aria-label={`Edit ${row.product_name}`} onClick={() => navigate(`/products/${row.id}/edit`)}>
+              <EditOutlined />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title='Delete'>
+            <IconButton aria-label={`Delete ${row.product_name}`} onClick={() => setPendingDelete(row)}>
+              <DeleteOutlineOutlined />
+            </IconButton>
+          </Tooltip>
+        </div>
       ),
-      wrap: true,
     },
   ]
 
   return (
     <>
-      <AppBar />
-      <LoadingModal show={loading} />
+      <PageHeader
+        title='Products'
+        description={data ? `${formatNumber(data.count)} products in the catalogue` : 'Your catalogue'}
+      >
+        <Button component={Link} to='/products/new' variant='contained' color='secondary' startIcon={<AddOutlined />}>
+          Add product
+        </Button>
+      </PageHeader>
+      <div className='panel'>
+        <Table
+          label='Products'
+          columns={columns}
+          rows={data?.rows}
+          count={data?.count}
+          loading={loading}
+          error={error}
+          onRetry={reload}
+          onPageChange={onPageChange}
+          onRowsPerPageChange={onRowsPerPageChange}
+          onSort={(field, order) => onSort(sortFromField(field, order))}
+          emptyMessage='No products yet. Add your first one to start tracking stock.'
+        />
+      </div>
       <DeleteModal
-        handleDelete={handleRemoveProduct}
-        setConfirmModal={setConfirmModal}
-        show={confirmModal}
+        show={Boolean(pendingDelete)}
+        itemName={pendingDelete?.product_name}
+        busy={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setPendingDelete(null)}
       />
-      <Box className='container-fluid inventory-container'>
-        <Paper className='mat-paper' elevation={2}>
-          <Card>
-            <Typography variant='h5'>
-              Products - Total Products ({formatNumbers(parseInt(productsCount, 10))})
-            </Typography>
-            <CardContent className='mat-card-header'>
-              <Button
-                onClick={() => navigate('/product/add')}
-                className='add-button'
-                variant='outlined'
-              >
-                Add Product
-              </Button>
-            </CardContent>
-            <Table
-              data={products}
-              count={productsCount}
-              columns={productsColumns}
-              setPageNumber={setPageNumber}
-              setRowsPerPage={setRowsPerPage}
-              setSortBy={setSortBy}
-              loading={loading}
-            />
-          </Card>
-        </Paper>
-      </Box>
     </>
   )
 }

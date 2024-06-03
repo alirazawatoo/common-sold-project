@@ -1,36 +1,45 @@
-.order-sale {
-  display: flex;
-  flex-direction: row;
+@use 'variables' as *;
 
-  .sale {
-    font-size: 2.5vh;
+.order-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.status {
+  font-weight: 600;
+
+  &.status-shipped,
+  &.status-fulfilled {
+    border-color: $spruce;
+    color: $spruce;
   }
 
-  .avg-sale {
-    margin-left: 1rem;
+  &.status-pending,
+  &.status-open {
+    border-color: $clay;
+    color: $clay;
   }
 }
 
-.order-select {
-  display: table;
-  width: 100%;
+.stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+  overflow-wrap: anywhere;
 
-  .select-wrapper {
-    display: table;
-    float: left;
-    flex-direction: row;
-
-    .select-drop {
-      margin-top: 1rem;
-      float: left;
-      width: 15rem;
-      margin-right: 1rem;
-    }
-
-    .text-field-order {
-      margin-right: 1rem;
-      margin-top: 1rem;
-      width: 15rem;
-    }
+  .secondary {
+    font-size: 0.85rem;
   }
+}
+
+.secondary {
+  color: $muted;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
 }

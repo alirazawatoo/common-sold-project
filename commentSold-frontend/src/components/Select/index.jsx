@@ -1,17 +1,26 @@
-import { Box } from '@mui/material'
-import Select from 'react-select'
+import { Autocomplete, TextField } from '@mui/material'
 
-const AppSelect = ({
-  selectOptions, placeHolder, setValue, value,
+// A labelled, searchable dropdown over a list of strings.
+const Select = ({
+  id, label, options = [], value, onChange, onBlur, error, helperText, name, loading = false,
 }) => (
-  <Box data-testid='select'>
-    <Select
-      placeholder={placeHolder}
-      options={selectOptions}
-      onChange={(e) => setValue(e.value)}
-      value={value && { value, label: value }}
-    />
-  </Box>
+  <Autocomplete
+    id={id}
+    options={options}
+    value={value || null}
+    loading={loading}
+    onChange={(event, selected) => onChange(selected || '')}
+    onBlur={onBlur}
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        name={name}
+        label={label}
+        error={Boolean(error)}
+        helperText={helperText}
+      />
+    )}
+  />
 )
 
-export default AppSelect
+export default Select

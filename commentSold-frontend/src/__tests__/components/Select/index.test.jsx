@@ -1,12 +1,25 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import Select from 'components/Select'
-import { TestApp } from 'utils/test'
 
-describe('Select Component', () => {
-  beforeEach(() => render(<Select placeHolder='Pick a shipper' selectOptions={[]} />, { wrapper: TestApp }))
+describe('Select', () => {
+  it('lets the user search and pick an option', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    render(<Select id='shipper' label='Shipper' options={['USPS', 'DHL', 'FedEx']} value='' onChange={onChange} />)
 
-  it('shows its placeholder', () => {
-    expect(screen.getByText('Pick a shipper')).toBeInTheDocument()
+    await user.type(screen.getByRole('combobox', { name: 'Shipper' }), 'fed')
+    expect(screen.getAllByRole('option')).toHaveLength(1)
+    await user.click(screen.getByRole('option', { name: 'FedEx' }))
+    expect(onChange).toHaveBeenCalledWith('FedEx')
+  })
+
+  it('reports an empty string when cleared', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    render(<Select id='status' label='Status' options={['Paid']} value='Paid' onChange={onChange} />)
+    await user.click(screen.getByTitle('Clear'))
+    expect(onChange).toHaveBeenCalledWith('')
   })
 })

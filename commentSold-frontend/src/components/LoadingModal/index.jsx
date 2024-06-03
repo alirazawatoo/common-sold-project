@@ -1,13 +1,9 @@
-import { Box, CircularProgress, Modal } from '@mui/material'
+import { Backdrop, CircularProgress } from '@mui/material'
 
-import './styles.scss'
-
-const LoadingModal = ({ show }) => (
-  <Modal open={show}>
-    <Box className='modal-box'>
-      <CircularProgress />
-    </Box>
-  </Modal>
+const LoadingModal = ({ show, label = 'Saving' }) => (
+  <Backdrop open={show} sx={{ zIndex: (theme) => theme.zIndex.modal + 1, color: '#ffffff' }}>
+    <CircularProgress color='inherit' aria-label={label} />
+  </Backdrop>
 )
 
 export default LoadingModal

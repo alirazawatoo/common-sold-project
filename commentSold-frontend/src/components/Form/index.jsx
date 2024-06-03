@@ -1,74 +1,75 @@
-import Box from '@mui/material/Box'
-import {
-  Button, CardContent, TextField, Typography,
-} from '@mui/material'
-import { Fragment } from 'react'
+import { Button, TextField } from '@mui/material'
 import { Formik } from 'formik'
-import { isEmpty } from 'lodash'
+
+import Select from 'components/Select'
 
 import './styles.scss'
-import { Select } from 'components'
 
+// Renders a Formik form from a field list; `selectOptions` feeds the select fields.
 const Form = ({
-  fieldsInitialValues, handleSubmition, action, validate, fields, selectList,
+  initialValues, onSubmit, validate, fields, selectOptions = {}, submitLabel, children,
 }) => (
-  <CardContent data-testid='content-form' className='mat-card-content'>
-    <Formik
-      initialValues={fieldsInitialValues}
-      enableReinitialize
-      validate={validate}
-      onSubmit={handleSubmition}
-    >
-      {({
-        values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue,
-      }) => (
-        <form className='mat-form' onSubmit={handleSubmit}>
-          {fields.map((field) => (field.type !== 'select' ? (
-            <Fragment key={field.name}>
-              <TextField
-                className='text-field'
-                fullWidth
-                label={field.label}
-                variant='outlined'
-                type={field.type}
-                name={field.name}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values[field.name]}
-              />
-              <Typography className='warn-typography'>
-                {errors[field.name] && touched[field.name] && errors[field.name]}
-              </Typography>
-            </Fragment>
-          ) : (
-            <Fragment key={field.name}>
-              <Box className='product-dropdown'>
-                <Select
-                  setValue={(value) => setFieldValue(field.name, value)}
-                  selectOptions={selectList[field.name].options}
-                  placeHolder={selectList[field.name].placeholder}
-                  value={values[field.name]}
-                />
-              </Box>
-              <Typography className='warn-typography'>
-                {errors[field.name] && touched[field.name] && errors[field.name]}
-              </Typography>
-            </Fragment>
-          )))}
+  <Formik
+    initialValues={initialValues}
+    enableReinitialize
+    validate={validate}
+    onSubmit={onSubmit}
+  >
+    {({
+      values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue,
+      setFieldTouched, isSubmitting,
+    }) => (
+      <form className='app-form' data-testid='content-form' onSubmit={handleSubmit} noValidate>
+        {fields.map((field) => {
+          const error = touched[field.name] && errors[field.name]
+          const id = `field-${field.name}`
 
-          <Button
-            className='submit-button'
-            type='submit'
-            disabled={!isEmpty(errors)}
-            variant='contained'
-            size='large'
-          >
-            {action}
+          if (field.type === 'select') {
+            return (
+              <Select
+                key={field.name}
+                id={id}
+                name={field.name}
+                label={field.label}
+                options={selectOptions[field.name]}
+                value={values[field.name]}
+                onChange={(value) => setFieldValue(field.name, value)}
+                onBlur={() => setFieldTouched(field.name, true)}
+                error={error}
+                helperText={error || field.helperText}
+              />
+            )
+          }
+
+          return (
+            <TextField
+              key={field.name}
+              id={id}
+              name={field.name}
+              label={field.label}
+              type={field.type}
+              autoComplete={field.autoComplete}
+              multiline={field.multiline}
+              minRows={field.multiline ? 2 : undefined}
+              value={values[field.name] ?? ''}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={Boolean(error)}
+              helperText={error || field.helperText}
+              fullWidth
+            />
+          )
+        })}
+
+        <div className='app-form-actions'>
+          {children}
+          <Button type='submit' variant='contained' size='large' disabled={isSubmitting}>
+            {submitLabel}
           </Button>
-        </form>
-      )}
-    </Formik>
-  </CardContent>
+        </div>
+      </form>
+    )}
+  </Formik>
 )
 
 export default Form

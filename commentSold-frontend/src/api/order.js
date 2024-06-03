@@ -1,9 +1,8 @@
 import instance from 'api'
-import { orderSearchUrl } from 'utils/helpers'
+import { listQuery } from 'utils/helpers'
 
-const fetchAllOrders = (params) => instance
-  .get(orderSearchUrl(params))
+const fetchOrders = (query) => instance
+  .get(`orders?${listQuery(query)}`)
   .then((response) => response.data)
-  .catch(() => ({}))
 
-export default fetchAllOrders
+export default fetchOrders

@@ -1,56 +1,27 @@
+export const productFieldsInitialValues = {
+  product_name: '',
+  description: '',
+  style: '',
+  brand: '',
+  product_type: '',
+  shipping_price: '',
+  note: '',
+  url: '',
+}
+
 export const productFields = [
+  { name: 'product_name', label: 'Product name', type: 'text' },
   {
-    id: 0,
-    label: 'Product name',
-    name: 'product_name',
-    type: 'text',
+    name: 'description', label: 'Description', type: 'text', multiline: true,
   },
+  { name: 'product_type', label: 'Product type', type: 'select' },
+  { name: 'style', label: 'Style', type: 'select' },
+  { name: 'brand', label: 'Brand', type: 'select' },
   {
-    id: 1,
-    label: 'Description',
-    name: 'description',
-    type: 'text',
+    name: 'shipping_price', label: 'Shipping (cents)', type: 'number', helperText: 'For example 595 for $5.95',
   },
+  { name: 'url', label: 'Image URL (optional)', type: 'url' },
   {
-    id: 5,
-    label: 'Shipping price',
-    name: 'shipping_price',
-    type: 'number',
-  },
-  {
-    id: 6,
-    label: 'Note (optional)',
-    name: 'note',
-    type: 'text',
-  },
-  {
-    id: 6,
-    label: 'Image url (optional)',
-    name: 'url',
-    type: 'text',
-  },
-  {
-    id: 4,
-    label: 'Product type',
-    name: 'product_type',
-    type: 'select',
-  },
-  {
-    id: 2,
-    label: 'Style',
-    name: 'style',
-    type: 'select',
-  },
-  {
-    id: 3,
-    label: 'Brand',
-    name: 'brand',
-    type: 'select',
+    name: 'note', label: 'Internal note (optional)', type: 'text', multiline: true,
   },
 ]
-
-export const productColumnsKeys = {
-  Name: { columnName: 'product_name', tableName: 'products' },
-  Style: { columnName: 'style', tableName: 'products' },
-  Brand: { columnName: 'brand', tableName: 'products' },
-}

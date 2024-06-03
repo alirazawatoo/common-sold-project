@@ -1,15 +1,69 @@
 @use 'variables' as *;
 
-.appbar-box {
-  align-items: flex-end;
-  background-color: $primary !important;
+.appbar {
+  background: $spruce;
+  color: #ffffff;
 
-  .app-menu {
-    font-size: 1.5vh;
+  .appbar-inner {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+    max-width: $content-width;
+    margin: 0 auto;
+    padding: 10px $gutter;
   }
-}
 
-.eUeqdG {
-  white-space: pre-line !important;
-  word-wrap: break-word !important;
+  .brand {
+    font-family: $display;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: none;
+  }
+
+  .appbar-nav {
+    display: flex;
+    gap: 4px;
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+
+    @media (min-width: 720px) {
+      order: 0;
+      width: auto;
+    }
+  }
+
+  .appbar-link {
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #dbe6e0;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    &.active {
+      background: $linen;
+      color: $spruce;
+    }
+  }
+
+  .appbar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .appbar-name {
+    color: #dbe6e0;
+    font-size: 0.9rem;
+  }
 }

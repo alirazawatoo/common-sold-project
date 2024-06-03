@@ -1,14 +1,15 @@
 import { render, screen } from '@testing-library/react'
 
 import LoadingModal from 'components/LoadingModal'
-import { TestApp } from 'utils/test'
 
-describe('Loading Modal Component', () => {
-  const Modal = <LoadingModal show />
+describe('LoadingModal', () => {
+  it('shows a labelled progress indicator', () => {
+    render(<LoadingModal show label='Saving product' />)
+    expect(screen.getByRole('progressbar', { name: 'Saving product' })).toBeInTheDocument()
+  })
 
-  beforeEach(() => render(Modal, { wrapper: TestApp }))
-
-  it('shows a progress indicator', () => {
-    expect(screen.getByRole('progressbar')).toBeInTheDocument()
+  it('is hidden when not loading', () => {
+    render(<LoadingModal show={false} />)
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
   })
 })

@@ -1,0 +1,24 @@
+@use 'variables' as *;
+
+.stat-tile {
+  padding: 16px 20px;
+  background: $surface;
+  border: 1px solid $line;
+  border-left: 4px solid $clay;
+  border-radius: 10px;
+
+  dt {
+    color: $muted;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  dd {
+    margin: 4px 0 0;
+    font-family: $display;
+    font-size: 1.6rem;
+    font-weight: 600;
+  }
+}

@@ -1,21 +1,29 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 
-import Appbar from 'components/Appbar'
-import { TestApp } from 'utils/test'
+import AppBar from 'components/Appbar'
+import { fakeToken, renderAt } from 'utils/test'
 
-describe('Appbar Component', () => {
-  beforeEach(() => render(<Appbar />, { wrapper: TestApp }))
+describe('AppBar', () => {
+  beforeEach(() => localStorage.setItem('token', fakeToken()))
+  afterEach(() => localStorage.clear())
 
-
-  it('should have inventory button', async () => {
-    await waitFor(() => {
-      expect(screen.getAllByRole('button')[0]).toBeInTheDocument()
-    })
+  it('marks the current page in the main navigation', () => {
+    renderAt(<AppBar />, { route: '/inventory', path: '/inventory' })
+    const nav = screen.getByRole('navigation', { name: 'Main' })
+    expect(nav).toContainElement(screen.getByRole('link', { name: 'Products' }))
+    expect(screen.getByRole('link', { name: 'Inventory' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Orders' })).not.toHaveAttribute('aria-current')
   })
 
-  it('should have four buttons', async () => {
-    await waitFor(() => {
-      expect(screen.getAllByRole('button')).toHaveLength(4)
-    })
+  it('shows who is signed in', () => {
+    renderAt(<AppBar />)
+    expect(screen.getByText('Morgan Avery')).toBeInTheDocument()
+  })
+
+  it('logs out by clearing the token and returning to login', async () => {
+    const { user } = renderAt(<AppBar />)
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
+    expect(localStorage.getItem('token')).toBeNull()
+    expect(screen.getByTestId('location')).toHaveTextContent('/login')
   })
 })

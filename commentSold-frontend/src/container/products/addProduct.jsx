@@ -1,123 +1,81 @@
-import {
-  Box, Card, Paper, Typography,
-} from '@mui/material'
+import { Alert, Button, Skeleton } from '@mui/material'
+import { useCallback, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { isEmpty } from 'lodash'
 
+import { apiErrorMessage } from 'api'
 import {
-  addProducts, fetchProduct, updateProducts, fetchProductStyles, fetchProductBrands,
-  fetchProductTypes,
+  createProduct, fetchProduct, fetchProductOptions, updateProduct,
 } from 'api/products'
-import { productFields } from 'utils/constants/product'
-import { AppBar, LoadingModal, Form } from 'components'
+import { Form, PageHeader } from 'components'
+import { productFields, productFieldsInitialValues } from 'utils/constants/product'
+import { useRemoteData } from 'utils/hooks'
 import { validateProduct } from 'utils/validations'
 
-import 'container/auth/login/styles.scss'
 import './styles.scss'
 
-const Product = () => {
-  const [action, setAction] = useState()
-  const [loading, setloading] = useState(false)
-  const [currentProductId, setcurrentProductId] = useState('')
+const noProduct = () => Promise.resolve(null)
+
+// Create and edit share this page; /products/:id/edit loads the product first.
+const ProductForm = () => {
+  const { id } = useParams()
   const navigate = useNavigate()
-  const [productFieldsInitialValues, setInitialValues] = useState({
-    product_name: '',
-    description: '',
-    style: '',
-    brand: '',
-    product_type: '',
-    shipping_price: '',
-    note: '',
-    url: '',
-  })
-  const [productSelectOptions, setProductSelectOptions] = useState({
-    style: { options: [], placeholder: 'Select style' },
-    brand: { options: [], placeholder: 'Select brand' },
-    product_type: { options: [], placeholder: 'Select product type' },
-  })
+  const isEdit = Boolean(id)
+  const [saveError, setSaveError] = useState('')
 
-  const handleProductOptions = async () => {
-    const tempOptions = { ...productSelectOptions }
-    const styles = await fetchProductStyles()
-    const brands = await fetchProductBrands()
-    const types = await fetchProductTypes()
+  const options = useRemoteData(fetchProductOptions, null)
+  const loadProduct = useCallback((productId) => (productId ? fetchProduct(productId) : noProduct()), [])
+  const product = useRemoteData(loadProduct, id || null)
 
-    const productStyleOptions = styles.map(item => ({ value: item, label: item }))
-    const productBrandOptions = brands.map(item => ({ value: item, label: item }))
-    const productTypeOptions = types.map(item => ({ value: item, label: item }))
-
-    tempOptions.style.options = productStyleOptions
-    tempOptions.brand.options = productBrandOptions
-    tempOptions.product_type.options = productTypeOptions
-    setProductSelectOptions(tempOptions)
-  }
-
-  const getProductById = async (id) => {
-    const data = await fetchProduct(id)
-    if (!isEmpty(data)) {
-      setInitialValues(data)
+  const handleSubmit = async (values) => {
+    setSaveError('')
+    const body = { ...values, shipping_price: Number(values.shipping_price) }
+    try {
+      if (isEdit) await updateProduct(id, body)
+      else await createProduct(body)
+      toast.success(isEdit ? 'Product updated' : 'Product added')
+      navigate('/products')
+    } catch (err) {
+      setSaveError(apiErrorMessage(err))
     }
   }
 
-  useEffect(() => {
-    const params = window.location.pathname.split('/')
-    setAction(params[2])
-    handleProductOptions()
-    if (params[2] === 'update') {
-      getProductById(params[3])
-      setcurrentProductId(params[3])
-    }
-  }, [window.location.pathname])
+  const initialValues = product.data
+    ? Object.fromEntries(Object.keys(productFieldsInitialValues).map((key) => [key, product.data[key] ?? '']))
+    : productFieldsInitialValues
 
-  const handleProduct = async (values) => {
-    setloading(true)
-    if (action === 'add') {
-      const data = await addProducts(values)
-      if (!isEmpty(data)) {
-        toast.success(`Product ${action === 'add' ? 'added' : 'updated'}`)
-        navigate('/products')
-      } else {
-        toast.error('Error! product not added')
-      }
-    } else {
-      const data = await updateProducts(values, currentProductId)
-      if (!isEmpty(data)) {
-        toast.success(`Product ${action === 'add' ? 'added' : 'updated'}`)
-        navigate('/products')
-      } else {
-        toast.error('Error! product not updated')
-      }
-    }
-    setloading(false)
-  }
+  const loadError = product.error || options.error
 
   return (
     <>
-      <AppBar />
-      <Box className='add-product-container container-fluid container'>
-        <LoadingModal show={loading} />
-        <Box className='container'>
-          <Paper className='mat-paper' elevation={2}>
-            <Card className='mat-card'>
-              <Typography className='heading' variant='h4'>
-                {action} Product
-              </Typography>
-              <Form
-                fieldsInitialValues={productFieldsInitialValues}
-                handleSubmition={handleProduct}
-                action={action}
-                validate={validateProduct}
-                fields={productFields}
-                selectList={productSelectOptions}
-              />
-            </Card>
-          </Paper>
-        </Box>
-      </Box>
+      <PageHeader
+        title={isEdit ? 'Edit product' : 'Add a product'}
+        description={isEdit ? product.data?.product_name : 'It will appear in the catalogue straight away.'}
+      />
+      <div className='panel product-form'>
+        {loadError && <Alert severity='error' sx={{ mb: 2 }}>{loadError}</Alert>}
+        {saveError && <Alert severity='error' sx={{ mb: 2 }}>{saveError}</Alert>}
+        {(product.loading || options.loading) && (
+          <div role='status' aria-label='Loading product'>
+            {[0, 1, 2, 3, 4].map((row) => <Skeleton key={row} height={56} />)}
+          </div>
+        )}
+        {!product.loading && !options.loading && !(isEdit && product.error) && (
+          <Form
+            initialValues={initialValues}
+            onSubmit={handleSubmit}
+            validate={validateProduct}
+            fields={productFields}
+            selectOptions={options.data || {}}
+            submitLabel={isEdit ? 'Save changes' : 'Add product'}
+          >
+            <Button component={Link} to='/products' size='large'>Cancel</Button>
+          </Form>
+        )}
+        {isEdit && product.error && <Button component={Link} to='/products'>Back to products</Button>}
+      </div>
     </>
   )
 }
 
-export default Product
+export default ProductForm
