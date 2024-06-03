@@ -5,20 +5,16 @@ const jwt = require('../../utils/jwt')
 const Users = db.users
 
 exports.login = async (req, res) => {
-  try {
-    const user = await Users.findOne({
-      where: { email: req.body.email.trim() },
-      attributes: ['id', 'name', 'email', 'superadmin', 'password_hash']
-    })
-    const passwordMatches = user && await bcrypt.compare(req.body.password, user.password_hash)
+  const user = await Users.findOne({
+    where: { email: req.body.email },
+    attributes: ['id', 'name', 'email', 'superadmin', 'password_hash']
+  })
+  const passwordMatches = user && await bcrypt.compare(req.body.password, user.password_hash)
 
-    if (!passwordMatches) return res.status(403).send({ message: 'Incorrect Logins' })
+  if (!passwordMatches) return res.status(401).send({ message: 'Incorrect email or password.' })
 
-    const token = jwt.signToken({
-      userId: user.id, name: user.name, email: user.email, superadmin: user.superadmin
-    })
-    res.status(200).send({ token })
-  } catch (err) {
-    res.status(500).send({ message: 'Some error occurred while logging in.' })
-  }
+  const token = jwt.signToken({
+    userId: user.id, name: user.name, email: user.email, superadmin: user.superadmin
+  })
+  res.send({ token })
 }

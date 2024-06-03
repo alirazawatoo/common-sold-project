@@ -1,37 +1,21 @@
-const http = require('http')
-const express = require('express')
+require('dotenv').config({ quiet: true })
 
-const appConfig = require('./config/app')
-const routes = require('./routes/routes')
+const createApp = require('./config/app')
 const db = require('./models')
 
-class Server {
-  constructor() {
-    this.app = express()
+const port = Number(process.env.PORT) || 5000
 
-    db.sequelize.sync({ logging: false })
-      .then(() => {})
-      .catch(() => {})
-  }
+const start = async () => {
+  if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not set; copy .env.example to .env first.')
 
-  appConfig() {
-    new appConfig(this.app).includeConfig()
-  }
+  await db.sequelize.authenticate()
+  // Creates missing tables only; it never alters or drops existing ones.
+  await db.sequelize.sync()
 
-  includeRoute() {
-    new routes(this.app).routesConfig()
-  }
-
-  async appExecute() {
-    const port = process.env.PORT || 5000
-
-    this.appConfig()
-    this.includeRoute()
-    
-    var server = http.createServer(this.app)
-    server.listen(port)
-  }
+  createApp().listen(port, () => console.log(`API listening on port ${port}`))
 }
 
-const app = new Server()
-app.appExecute()
+start().catch(err => {
+  console.error(`Could not start the API: ${err.message}`)
+  process.exit(1)
+})

@@ -1,23 +1,28 @@
-const expressConfig = require('./express')
-const bodyParser = require('body-parser')
 const cors = require('cors')
-const dotenv = require('dotenv')
+const express = require('express')
 
-class AppConfig {
-  constructor(app) {
-    dotenv.config()
-    this.app = app
-  }
-  includeConfig() {
-    this.app.use(cors())
-    this.app.use(bodyParser.json())
+const registerRoutes = require('../routes/routes')
 
-    this.app.use((req, res, next) => {
-      res.header('Access-Control-Allow-Origin', req.headers.origin)
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-      return next()
-    })
-    new expressConfig(this.app)
-  }
+const createApp = () => {
+  const app = express()
+
+  app.disable('x-powered-by')
+  app.use(cors())
+  app.use(express.json())
+
+  registerRoutes(app)
+
+  app.use((req, res) => res.status(404).send({ message: 'Not found.' }))
+
+  // Express 5 forwards rejected async handlers here.
+  app.use((err, req, res, next) => {
+    if (err.type === 'entity.parse.failed') return res.status(400).send({ message: 'Malformed JSON body.' })
+
+    console.error(err)
+    res.status(500).send({ message: 'Something went wrong on our side.' })
+  })
+
+  return app
 }
-module.exports = AppConfig
+
+module.exports = createApp

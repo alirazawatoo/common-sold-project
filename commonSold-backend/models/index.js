@@ -4,14 +4,11 @@ const fs = require('fs')
 const path = require('path')
 const Sequelize = require('sequelize')
 
-const dotenv = require('dotenv')
-dotenv.config()
-
 const basename = path.basename(__filename)
 const config = require(__dirname + '/../config/db.js')
 const db = {}
 
-let sequelize = new Sequelize(config.database, config.username, config.password, { ...config, ...{ logging: false }})
+const sequelize = new Sequelize(config.database, config.username, config.password, config)
 
 fs
   .readdirSync(__dirname)
