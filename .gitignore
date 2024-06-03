@@ -1,0 +1,34 @@
+# Local environment files hold database passwords and JWT secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Dependencies
+node_modules/
+project_venv/
+.venv/
+
+# Build output and caches
+build/
+dist/
+.cache/
+.eslintcache
+*.tsbuildinfo
+
+# Test output
+coverage/
+
+# Logs and scratch
+logs/
+*.log
+npm-debug.log*
+tmp/
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
+.github/

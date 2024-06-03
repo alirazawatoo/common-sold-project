@@ -1,0 +1,46 @@
+@import 'variables' ;
+
+.inventory-container {
+  display: flex;
+  justify-content: center;
+
+  .mat-paper {
+    width: 84%;
+    margin: 6vh 3vh 3vh 3vh;
+    padding: 3vh;
+
+    .mat-card-header {
+      display: table;
+      flex-direction: row;
+      padding: 0px;
+      margin-top: 2rem;
+
+      .text-field {
+        margin-top: 1rem;
+        float: left;
+        width: 17rem;
+        margin-right: 1rem;
+      }
+
+      .select {
+        float: left;
+        margin-top: 1rem;
+      }
+    }
+
+    .card-seperator {
+      margin-top: 1rem;
+      border-bottom: 1px solid $border;
+    }
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .inventory-container {
+    width: 97%;
+  }
+
+  .mat-paper {
+    width: 94%;
+  }
+}
