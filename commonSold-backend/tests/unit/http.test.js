@@ -37,7 +37,7 @@ describe('request validation', () => {
       product_type: 'clothing', shipping_price: 300
     })
     expect(res.status).toBe(400)
-    expect(res.body.message).toMatch(/^brand must be one of/)
+    expect(res.body.message).toBe('brand must be one of the options the API lists')
   })
 
   it('rejects a negative shipping price on update', async () => {

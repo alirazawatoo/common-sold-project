@@ -6,13 +6,17 @@ const loginSchema = Joi.object({
   password: Joi.string().required()
 })
 
+// The brand list has ~900 entries; Joi's default message would print all of them.
+const fromList = values => Joi.string().valid(...values).required()
+  .messages({ 'any.only': '{{#label}} must be one of the options the API lists' })
+
 const productSchema = Joi.object({
   product_name: Joi.string().trim().required(),
   description: Joi.string().trim().required(),
-  style: Joi.string().valid(...styles).required(),
-  brand: Joi.string().valid(...brands).required(),
+  style: fromList(styles),
+  brand: fromList(brands),
   url: Joi.string().allow('').default(''),
-  product_type: Joi.string().valid(...type).required(),
+  product_type: fromList(type),
   shipping_price: Joi.number().integer().min(0).required(),
   note: Joi.string().allow('').default('')
 })
