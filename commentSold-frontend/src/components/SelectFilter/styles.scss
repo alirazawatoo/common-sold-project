@@ -1,4 +1,4 @@
-@import 'variables' ;
+@use 'variables' as *;
 
 .filter-select-container {
   border: 1px solid $grey;

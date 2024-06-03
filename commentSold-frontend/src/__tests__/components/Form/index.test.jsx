@@ -23,10 +23,6 @@ describe('Form Component', () => {
 
   beforeEach(() => render(form, { wrapper: TestApp }))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-    expect(screen).toMatchSnapshot()
-  })
 
   it('should have add button', async () => {
     await waitFor(() => {

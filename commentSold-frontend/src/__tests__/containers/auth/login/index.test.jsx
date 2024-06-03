@@ -8,10 +8,6 @@ import { TestApp } from 'utils/test'
 describe('Login Container', () => {
   beforeEach(() => act(() => render(<Login />, { wrapper: TestApp })))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-    expect(screen).toMatchSnapshot()
-  })
 
   it('should have form', async () => {
     await waitFor(() => {

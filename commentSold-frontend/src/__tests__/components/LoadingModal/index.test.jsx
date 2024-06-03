@@ -8,9 +8,7 @@ describe('Loading Modal Component', () => {
 
   beforeEach(() => render(Modal, { wrapper: TestApp }))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-
-    expect(screen).toMatchSnapshot()
+  it('shows a progress indicator', () => {
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
   })
 })

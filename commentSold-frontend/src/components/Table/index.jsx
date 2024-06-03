@@ -2,7 +2,7 @@ import { Box, Skeleton } from '@mui/material'
 import DataTable from 'react-data-table-component'
 import { defaultPageCount } from 'utils/constants/common'
 
-export default ({
+const Table = ({
   data, count, columns, setPageNumber, setRowsPerPage, setSortBy, loading,
 }) => {
   const table = (
@@ -36,3 +36,5 @@ export default ({
 
   return data.length !== 0 ? table : load
 }
+
+export default Table

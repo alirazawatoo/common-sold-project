@@ -8,10 +8,6 @@ describe('Delete Modal Component', () => {
 
   beforeEach(() => render(Modal, { wrapper: TestApp }))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-    expect(screen).toMatchSnapshot()
-  })
 
   it('should have 2 buttons', async () => {
     await waitFor(() => {

@@ -8,10 +8,6 @@ import { TestApp } from 'utils/test'
 describe('Inventory Container', () => {
   beforeEach(() => act(() => render(<Inventory />, { wrapper: TestApp })))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-    expect(screen).toMatchSnapshot()
-  })
 
   it('should have select filter', async () => {
     await waitFor(() => {

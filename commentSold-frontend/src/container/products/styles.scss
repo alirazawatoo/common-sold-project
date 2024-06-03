@@ -1,4 +1,4 @@
-@import 'variables' ;
+@use 'variables' as *;
 
 .product-container {
   display: flex;

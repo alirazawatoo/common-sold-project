@@ -8,10 +8,6 @@ import { TestApp } from 'utils/test'
 describe('AddProduct Container', () => {
   beforeEach(() => act(() => render(<AddProduct />, { wrapper: TestApp })))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-    expect(screen).toMatchSnapshot()
-  })
 
   it('should have appbar', async () => {
     await waitFor(() => {

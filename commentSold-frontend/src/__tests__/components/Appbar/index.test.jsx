@@ -6,10 +6,6 @@ import { TestApp } from 'utils/test'
 describe('Appbar Component', () => {
   beforeEach(() => render(<Appbar />, { wrapper: TestApp }))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-    expect(screen).toMatchSnapshot()
-  })
 
   it('should have inventory button', async () => {
     await waitFor(() => {

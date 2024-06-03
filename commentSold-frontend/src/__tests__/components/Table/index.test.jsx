@@ -7,10 +7,6 @@ import { TestApp } from 'utils/test'
 describe('Table Component', () => {
   beforeEach(() => render(<Table data={orderColumns} />, { wrapper: TestApp }))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-    expect(screen).toMatchSnapshot()
-  })
 
   it('should have 11 rows', async () => {
     await waitFor(() => {

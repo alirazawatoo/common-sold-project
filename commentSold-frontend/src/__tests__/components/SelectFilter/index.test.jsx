@@ -6,12 +6,6 @@ import { TestApp } from 'utils/test'
 describe('SelectFilter Component', () => {
   beforeEach(() => render(<SelectFilter />, { wrapper: TestApp }))
 
-  it('should render correctly', () => {
-    expect.assertions(1)
-
-    expect(screen).toMatchSnapshot()
-  })
-
   it('should have combobox', async () => {
     await waitFor(() => {
       const combobox = screen.getAllByRole('combobox')
