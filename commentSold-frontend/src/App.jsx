@@ -8,8 +8,6 @@ import Orders from 'container/orders'
 import Products from 'container/products'
 import Product from 'container/products/addProduct'
 
-import 'react-toastify/dist/ReactToastify.css'
-
 const App = () => (
   <>
     <ToastContainer />

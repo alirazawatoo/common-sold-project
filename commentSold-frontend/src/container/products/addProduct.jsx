@@ -1,5 +1,6 @@
-import { Box, Paper, Typography } from '@mui/material'
-import Card from '@mui/joy/Card'
+import {
+  Box, Card, Paper, Typography,
+} from '@mui/material'
 import { toast } from 'react-toastify'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'

@@ -1,7 +1,6 @@
 import {
-  Box, CardContent, Paper, Typography, TextField,
+  Box, Card, CardContent, Paper, Typography, TextField,
 } from '@mui/material'
-import Card from '@mui/joy/Card'
 import { useNavigate } from 'react-router-dom'
 
 import { defaultPageCount } from 'utils/constants/common'
@@ -18,8 +17,8 @@ import 'container/inventory/styles.scss'
 
 const Orders = () => {
   const navigate = useNavigate()
-  const [orders, setOrders] = useState({})
-  const [ordersCount, setOrdersCount] = useState({})
+  const [orders, setOrders] = useState([])
+  const [ordersCount, setOrdersCount] = useState(0)
   const [pageNumber, setPageNumber] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(defaultPageCount)
   const [orderStatus, setOrderStatus] = useState('')
