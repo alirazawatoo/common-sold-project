@@ -23,7 +23,7 @@ export const orderSearchUrl = ({
 }
 
 export const inventorySearchUrl = ({
-  rowsPerPage, pageNumber, tempSortBy, name, tempOperator, price,
+  rowsPerPage, pageNumber, tempSortBy, name, tempOperator, quantity,
 }) => {
   let searchUrl = `/inventories?limit=${rowsPerPage}&page=${pageNumber}&sort_column=${tempSortBy.name.columnName}&sort_table_name=${tempSortBy.name.tableName}&sort_order=${tempSortBy.sortOrder}`
 
@@ -31,7 +31,7 @@ export const inventorySearchUrl = ({
 
   if (tempOperator) searchUrl += `&operator=${tempOperator}`
 
-  if (price) searchUrl += `&price=${price}`
+  if (quantity) searchUrl += `&quantity=${quantity}`
 
   return searchUrl
 }

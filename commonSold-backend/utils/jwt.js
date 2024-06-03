@@ -17,7 +17,8 @@ exports.protect = (req, res, next) => {
         Object.assign(req, {
           userId: decoded.userId,
           name: decoded.name,
-          email: decoded.email
+          email: decoded.email,
+          superadmin: Boolean(decoded.superadmin)
         })
         next()
       }

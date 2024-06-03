@@ -6,47 +6,34 @@ const Inventory = db.inventory
 const Orders = db.orders
 const Products = db.products
 
-// Find All Orders
-exports.findAll = (req, res) => {
+// Find All Orders, with the sale totals for the same filter
+exports.findAll = async (req, res) => {
   try {
-    let { offset, limit } = helper.getOffsetLimit(req.query)
-    let { orderOptions } = helper.ordersFilterOptions(req.query)
-    let { order, orderByError } = helper.getOrdersOrderBy(req.query)
+    const { offset, limit } = helper.getOffsetLimit(req.query)
+    const { orderOptions } = helper.ordersFilterOptions(req.query)
+    const { order, orderByError } = helper.getOrderBy('orders', req.query, { products: Products })
 
-    if (orderByError) return res.status(500).send({orderByError})
+    if (orderByError) return res.status(400).send({ orderByError })
 
-    Orders.findAndCountAll({
-      where: orderOptions,
-      include: [{
-        model: Products,
-        include: [{
-          model: Inventory,
-          attributes: attributes.order_product_inventory,
-        }],
-        attributes: attributes.order_products,
-      }],
-      offset, limit, order,
-      attributes: attributes.orders
-    })
-      .then(async ({ rows }) => {
-        let sale = await helper.getTotalSale(orderOptions)
-        let { totalSale, average } = await helper.getSaleState(sale)
+    const [rows, count, totalSale] = await Promise.all([
+      Orders.findAll({
+        where: orderOptions,
+        include: [
+          { model: Products, attributes: attributes.order_products },
+          { model: Inventory, attributes: attributes.order_inventory }
+        ],
+        offset, limit, order,
+        attributes: attributes.orders
+      }),
+      Orders.count({ where: orderOptions }),
+      Orders.sum('total_cents', { where: orderOptions })
+    ])
 
-        const count = await Orders.findAndCountAll({
-          where: orderOptions,
-          attributes: attributes.orders
-        })
+    const total = totalSale || 0
+    const average = count ? Math.round(total / count) : 0
 
-        res.send({ totalSale, average, count: count.count, rows })
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: err.message || 'Some error occurred while retrieving orders.'
-        })
-      })
+    res.send({ totalSale: total, average, count, rows })
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
+    res.status(500).send({ message: 'Some error occurred while retrieving orders.' })
   }
 }

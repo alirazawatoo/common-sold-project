@@ -38,7 +38,7 @@ const Inventory = () => {
       pageNumber,
       name,
       tempOperator,
-      price,
+      quantity: price,
       tempSortBy,
     })
 

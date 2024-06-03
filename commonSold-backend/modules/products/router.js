@@ -14,7 +14,7 @@ router.get('/brands', productsController.findAllBrands)
 router.get('/styles', productsController.findAllStyles)
 router.get('/:productId', productsController.findById)
 
-router.put('/:productId', productsController.update)
+router.put('/:productId', middleware.product, productsController.update)
 router.delete('/:productId', productsController.deleteById)
 
 module.exports = router

@@ -35,12 +35,12 @@ export const orderColumns = [
   },
   {
     name: 'Color',
-    selector: (row) => row.product?.inventories.reduce((acc, item) => `${item.color}${acc && ','} ${acc}`, ''),
+    selector: (row) => row.inventory?.color,
     grow: 3,
   },
   {
     name: 'Size',
-    selector: (row) => row.product?.inventories.reduce((acc, item) => `${item.size}${acc && ','} ${acc}`, ''),
+    selector: (row) => row.inventory?.size,
     width: '10rem',
   },
   {
@@ -83,7 +83,7 @@ export const orderStatusOptions = [
   { value: 'All', label: 'All' },
   { value: 'Pending', label: 'Pending' },
   { value: 'Paid', label: 'Paid' },
-  { value: 'Fulfulled', label: 'Fulfulled' },
+  { value: 'Fulfilled', label: 'Fulfilled' },
   { value: 'Shipped', label: 'Shipped' },
   { value: 'Open', label: 'Open' },
 ]

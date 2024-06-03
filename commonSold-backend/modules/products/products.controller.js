@@ -2,158 +2,106 @@ const helper = require('../../utils/helper')
 const db = require('../../models')
 const { type, styles, brands } = require('../../utils/constants')
 
-
+const Inventory = db.inventory
+const Orders = db.orders
 const Products = db.products
+
+const productFields = ({ product_name, description, style, brand, url, product_type, shipping_price, note }) => ({
+  product_name: product_name.trim(),
+  description: description.trim(),
+  style,
+  brand,
+  url: url.trim(),
+  product_type,
+  shipping_price,
+  note: note.trim()
+})
+
+// Only the admin who created a product, or a superadmin, may change it.
+const findEditableProduct = async (req, res) => {
+  const product = await Products.findByPk(req.params.productId)
+
+  if (!product) {
+    res.status(404).send({ message: 'Product not found.' })
+    return null
+  }
+  if (product.admin_id !== req.userId && !req.superadmin) {
+    res.status(403).send({ message: 'You can only change your own products.' })
+    return null
+  }
+  return product
+}
 
 // Create and Save a new Product
 exports.create = async (req, res) => {
   try {
-    const user_id = req.userId
-    const product = {
-        product_name: req.body.product_name.trim(),
-        description: req.body.description.trim(),
-        style: req.body.style.trim(),
-        brand: req.body.brand.trim(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        url: req.body.url.trim(),
-        product_type: req.body.product_type.trim(),
-        shipping_price: req.body.shipping_price,
-        note: req.body.note.trim(),
-        admin_id: user_id
-    }
-
-    Products.create(product)
-      .then(() => res.status(200).send({message: 'Product successfully created.'}))
-      .catch(err => {
-        res.status(500).send({
-          message: err.message || 'Some error occurred while creating the product.'
-        })
-      })
+    const product = await Products.create({ ...productFields(req.body), admin_id: req.userId })
+    res.status(201).send({ message: 'Product successfully created.', id: product.id })
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
+    res.status(500).send({ message: 'Some error occurred while creating the product.' })
   }
 }
 
 // Find All Products
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
   try {
-    let { offset, limit } = helper.getOffsetLimit(req.query)
-    let { order, orderByError } = helper.getProductsOrderBy(req.query)
+    const { offset, limit } = helper.getOffsetLimit(req.query)
+    const { order, orderByError } = helper.getOrderBy('products', req.query)
 
-    if (orderByError) return res.status(500).send({orderByError})
+    if (orderByError) return res.status(400).send({ orderByError })
 
-    Products.findAndCountAll({ offset, limit, order })
-      .then(data => res.send(data))
-      .catch(err => {
-        res.status(500).send({
-          message: err.message || 'Some error occurred while retrieving products.'
-        })
-      })
+    res.send(await Products.findAndCountAll({ offset, limit, order }))
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
+    res.status(500).send({ message: 'Some error occurred while retrieving products.' })
   }
 }
 
-// Find All Products Types
-exports.findAllTypes = (req, res) => {
-  try {
-    res.send(type)
-  } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
-  }
-}
+exports.findAllTypes = (req, res) => res.send(type)
 
-// Find All Products Brands
-exports.findAllBrands = (req, res) => {
-  try {
-    res.send(brands)
-  } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
-  }
-}
+exports.findAllBrands = (req, res) => res.send(brands)
 
-// Find All Products Styles
-exports.findAllStyles = (req, res) => {
-  try {
-    res.send(styles)
-  } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
-  }
-}
+exports.findAllStyles = (req, res) => res.send(styles)
 
 // Find Product by ID
-exports.findById = (req, res) => {
+exports.findById = async (req, res) => {
   try {
-    Products.findOne({where: { id: req.params.productId }})
-      .then(data => res.send(data))
-      .catch(err => {
-        res.status(500).send({
-          message: err.message || 'Some error occurred while retrieving products.'
-        })
-      })
+    const product = await Products.findByPk(req.params.productId)
+    if (!product) return res.status(404).send({ message: 'Product not found.' })
+    res.send(product)
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
+    res.status(500).send({ message: 'Some error occurred while retrieving products.' })
   }
 }
 
 // Update a product by the id in the request
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
   try {
-    const product = {
-      product_name: req.body.product_name.trim(),
-      description: req.body.description.trim(),
-      style: req.body.style.trim(),
-      brand: req.body.brand.trim(),
-      updatedAt: new Date(),
-      url: req.body.url.trim(),
-      product_type: req.body.product_type.trim(),
-      shipping_price: req.body.shipping_price,
-      note: req.body.note.trim()
-    }
+    const product = await findEditableProduct(req, res)
+    if (!product) return
 
-    Products.update(product, { where: { id: req.params.productId } })
-      .then(num => {
-        if (num == 1)
-          res.send({message: 'Product was updated successfully.'})
-        else
-          res.send({message: `Cannot update product. Maybe product was not found!`})
-      })
-      .catch(() => res.status(500).send({ message: 'Error updating product.' }))
+    await product.update(productFields(req.body))
+    res.send({ message: 'Product was updated successfully.' })
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
+    res.status(500).send({ message: 'Error updating product.' })
   }
 }
 
-// Delete a product with the specified id in the request
-exports.deleteById = (req, res) => {
+// Delete a product and its stock rows; products that have been ordered stay.
+exports.deleteById = async (req, res) => {
   try {
-    Products.destroy({
-      where: { id: req.params.productId }
+    const product = await findEditableProduct(req, res)
+    if (!product) return
+
+    const orderCount = await Orders.count({ where: { product_id: product.id } })
+    if (orderCount)
+      return res.status(409).send({ message: 'This product has orders, so it cannot be deleted.' })
+
+    await db.sequelize.transaction(async transaction => {
+      await Inventory.destroy({ where: { product_id: product.id }, transaction })
+      await product.destroy({ transaction })
     })
-      .then(num => res.send({ 
-        message: num == 1? 
-        'Product is successfully deleted.':
-        'Cannot delete product. product was not found.' 
-      }))
-      .catch(() => res.status(500).send({ message: 'Error updating product' }))
+    res.send({ message: 'Product is successfully deleted.' })
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
+    res.status(500).send({ message: 'Error deleting product.' })
   }
 }

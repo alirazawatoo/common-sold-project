@@ -5,17 +5,17 @@ const { attributes } = require('../../utils/constants')
 const Inventory = db.inventory
 const Products = db.products
 
-// Find All inventories 
-exports.findAll = (req, res) => {
+// Find All inventories
+exports.findAll = async (req, res) => {
   try {
-    var { offset, limit } = helper.getOffsetLimit(req.query)
-    let { productOptions, inventoryOptions, error } = helper.inventoryFilterOptions(req.query)
-    let { order, orderByError } = helper.getInventoriesOrderBy(req.query)
+    const { offset, limit } = helper.getOffsetLimit(req.query)
+    const { productOptions, inventoryOptions, error } = helper.inventoryFilterOptions(req.query)
+    const { order, orderByError } = helper.getOrderBy('inventories', req.query, { products: Products })
 
-    if (error) return res.status(500).send({error})
-    if (orderByError) return res.status(500).send({orderByError})
+    if (error) return res.status(400).send({ error })
+    if (orderByError) return res.status(400).send({ orderByError })
 
-    Inventory.findAndCountAll({
+    const inventory = await Inventory.findAndCountAll({
       where: inventoryOptions,
       include: [{
         model: Products,
@@ -25,15 +25,8 @@ exports.findAll = (req, res) => {
       offset, limit, order,
       attributes: attributes.inventory
     })
-      .then(inventory => res.send(inventory))
-      .catch(err => {
-        res.status(500).send({
-          message: err.message || 'Some error occurred while retrieving inventories.'
-        })
-      })
+    res.send(inventory)
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred.'
-    })
+    res.status(500).send({ message: 'Some error occurred while retrieving inventories.' })
   }
 }

@@ -93,8 +93,9 @@ module.exports = (sequelize, DataTypes) => {
   }, { timestamps: true })
 
   orders.associate = models => {
-    // associations can be defined here
     orders.belongsTo(models.products, { foreignKey: { name: 'product_id' }})
+    // The ordered variant (colour and size) lives on the inventory row.
+    orders.belongsTo(models.inventory, { foreignKey: { name: 'inventory_id' }})
   }
   
   return orders

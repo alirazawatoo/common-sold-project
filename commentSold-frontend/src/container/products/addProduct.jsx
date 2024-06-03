@@ -40,8 +40,8 @@ const Product = () => {
   const handleProductOptions = async () => {
     const tempOptions = { ...productSelectOptions }
     const styles = await fetchProductStyles()
-    const brands = await fetchProductTypes()
-    const types = await fetchProductBrands()
+    const brands = await fetchProductBrands()
+    const types = await fetchProductTypes()
 
     const productStyleOptions = styles.map(item => ({ value: item, label: item }))
     const productBrandOptions = brands.map(item => ({ value: item, label: item }))

@@ -37,7 +37,6 @@ module.exports = (sequelize, DataTypes) => {
   }, { timestamps: true })
 
   products.associate = models => {
-    // associations can be defined here
     products.belongsTo(models.users, { foreignKey: { name: 'admin_id' }})
     products.hasMany(models.inventory, { foreignKey: { name: 'product_id' }})
   }
