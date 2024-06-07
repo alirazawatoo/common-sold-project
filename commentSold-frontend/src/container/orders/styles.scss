@@ -1,0 +1,36 @@
+.order-sale {
+  display: flex;
+  flex-direction: row;
+
+  .sale {
+    font-size: 2.5vh;
+  }
+
+  .avg-sale {
+    margin-left: 1rem;
+  }
+}
+
+.order-select {
+  display: table;
+  width: 100%;
+
+  .select-wrapper {
+    display: table;
+    float: left;
+    flex-direction: row;
+
+    .select-drop {
+      margin-top: 1rem;
+      float: left;
+      width: 15rem;
+      margin-right: 1rem;
+    }
+
+    .text-field-order {
+      margin-right: 1rem;
+      margin-top: 1rem;
+      width: 15rem;
+    }
+  }
+}
